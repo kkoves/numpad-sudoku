@@ -18,3 +18,7 @@ table tr td {
 	border-right: 1px solid;
 	border-bottom: 1px solid;
 }
+
+.highlighted {
+	background-color: #72a8ff;
+}
