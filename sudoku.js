@@ -24,14 +24,16 @@ $(document).ready(function() {
 			}
 		}
 		// 0 will be used to clear the value of a cell on the grid, or to cancel an action set
-		else if(e.key === 0) {
+		else if(e.key == 0) {
 			currAction++;
 
 			if(currAction == 1)
 				clearActionSet();
 
-			if(currAction == 2)
+			if(currAction == 2) {
+				actionSet[2] = e.key;
 				writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
+			}
 		}
 		// The period (.) key will be used to cancel an action set
 		else if(e.key == ".") {
@@ -64,6 +66,10 @@ function writeValueToCell(coordinates, value) {
 	var index = cellLookupTable[coordinates[1]];
 
 	var cell = block[index];
+
+	// Null value will clear the cell when 0 key has been pressed
+	if(value == 0)
+		value = null;
 
 	$(cell).text(value);
 
