@@ -4,6 +4,11 @@ var currAction = -1;
 var cellLookupTable = [null, 6, 7, 8, 3, 4, 5, 0, 1, 2];
 
 $(document).ready(function() {
+	// Fill in a starting sudoku grid
+	fillSudokuGrid("14.7...6985.6.31....3..4..53.....71.2..1.5..4.91.....85..8..9....65.7.8372...1.56");
+
+	// This function outlines the core mechanic of Numpad Sudoku
+	// (will probably move it to a separate function soon)
 	$(document).keypress(function(e) {
 		// 1-9 are used to select a block or cell, or to fill a cell
 		if(e.key >= 1 && e.key <= 9) {
@@ -71,7 +76,9 @@ function writeValueToCell(coordinates, value) {
 	if(value == 0)
 		value = null;
 
-	$(cell).text(value);
+	// Only change the cell's value if it is not a pre-filled cell (clue)
+	if(!$(cell).hasClass("clue"))
+		$(cell).text(value);
 
 	clearActionSet();
 }
@@ -81,4 +88,29 @@ function clearActionSet() {
 
 	actionSet = new Array(3);
 	currAction = -1;
+}
+
+/**
+ * Fills the sudoku grid from a string that lists the cells to be filled in
+ * (clues) and the ones to be left empty (I will call them "blanks").
+ *     Example string (one row only): "1..4.67.9"
+ * The entire grid is represented in one string, with no separating character
+ * between the rows or boxes, so the string should be 81 characters long.
+ *
+ * Note: format may be changed later, as I have not yet decided how to store
+ *       the puzzles before they are loaded on the page (I do not want to
+ *       randomly generate them every time, as this would require validation
+ *       of whether the puzzles have unique solutions).
+ *
+ * @param  {string} gridString - string of clues and blanks in format described above
+ */
+function fillSudokuGrid(gridString) {
+	$("td").each(function(index) {
+		currValue = gridString.charAt(index);
+
+		if(currValue != '.')
+			$(this).text(currValue).addClass("clue");
+		else
+			$(this).text(null).removeClass("clue");
+	});
 }

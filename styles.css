@@ -1,6 +1,6 @@
 table {
-	width:  250px;
-	height: 250px;
+	width:  252px;
+	height: 254px;
 	border: black 2px solid;
 	border-collapse: collapse;
 }
@@ -17,8 +17,14 @@ table tr td {
 	text-align: center;
 	border-right: 1px solid;
 	border-bottom: 1px solid;
+	width: 28px;
+	height: 28px;
 }
 
 .highlighted {
 	background-color: #72a8ff;
+}
+
+.clue {
+	font-weight: bold;
 }
