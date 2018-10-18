@@ -1,30 +1,57 @@
 table {
-	width:  252px;
-	height: 254px;
-	border: black 2px solid;
-	border-collapse: collapse;
+  width:  252px;
+  height: 254px;
+  border: black 2px solid;
+  border-collapse: collapse;
 }
 
+/* Vertical border between boxes */
 td:nth-child(3), td:nth-child(6) {
-	border-right: 2px solid;
+  border-right: 2px solid;
 }
 
+/* Horizontal border between boxes */
 tr:nth-child(3), tr:nth-child(6) {
-	border-bottom: 2px solid;
+  border-bottom: 2px solid;
 }
 
 table tr td {
-	text-align: center;
-	border-right: 1px solid;
-	border-bottom: 1px solid;
-	width: 28px;
-	height: 28px;
+  text-align: center;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  width: 28px;
+  height: 28px;
+}
+
+#main-cnt {
+  text-align: center;
+  margin: 0 auto;
+  width: 75%;
+}
+
+h1 {
+  text-transform: uppercase;
+  font-weight: lighter;
+}
+
+#button-cnt {
+  text-align: center;
+  margin: 0 auto;
+  width: 200px;
+  height: 200px;
+}
+
+.difficulty-sel {
+  background-color: red;
+  margin-top: 5px;
+  display: block;
+  width: 120px;
 }
 
 .highlighted {
-	background-color: #72a8ff;
+  background-color: #72a8ff;
 }
 
 .clue {
-	font-weight: bold;
+  font-weight: bold;
 }
