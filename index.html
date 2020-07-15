@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
     <link href="styles.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" defer></script>
+    <script type="text/javascript" src="js/materialize.min.js" defer></script>
+    <script src="sudoku.js" defer></script>
   </head>
-
   <body>
     <div id="main-cnt">
       <h1>Numpad Sudoku</h1>
@@ -16,7 +18,109 @@
         <a class="waves-effect waves-light btn difficulty-sel">Hard</a>
         <a class="waves-effect waves-light btn difficulty-sel">Expert</a>
       </div>
+      <div class="container sudoku-grid">
+        <table>
+          <tr>
+            <td class="square7"></td>
+            <td class="square7"></td>
+            <td class="square7"></td>
+            <td class="square8"></td>
+            <td class="square8"></td>
+            <td class="square8"></td>
+            <td class="square9"></td>
+            <td class="square9"></td>
+            <td class="square9"></td>
+          </tr>
+          <tr>
+            <td  class="square7"></td>
+            <td  class="square7"></td>
+            <td  class="square7"></td>
+            <td  class="square8"></td>
+            <td  class="square8"></td>
+            <td  class="square8"></td>
+            <td  class="square9"></td>
+            <td  class="square9"></td>
+            <td  class="square9"></td>
+          </tr>
+          <tr>
+            <td  class="square7"></td>
+            <td  class="square7"></td>
+            <td  class="square7"></td>
+            <td  class="square8"></td>
+            <td  class="square8"></td>
+            <td  class="square8"></td>
+            <td  class="square9"></td>
+            <td  class="square9"></td>
+            <td  class="square9"></td>
+          </tr>
+          <tr>
+            <td class="square4"></td>
+            <td class="square4"></td>
+            <td class="square4"></td>
+            <td class="square5"></td>
+            <td class="square5"></td>
+            <td class="square5"></td>
+            <td class="square6"></td>
+            <td class="square6"></td>
+            <td class="square6"></td>
+          </tr>
+          <tr>
+            <td class="square4"></td>
+            <td class="square4"></td>
+            <td class="square4"></td>
+            <td class="square5"></td>
+            <td class="square5"></td>
+            <td class="square5"></td>
+            <td class="square6"></td>
+            <td class="square6"></td>
+            <td class="square6"></td>
+          </tr>
+          <tr>
+            <td class="square4"></td>
+            <td class="square4"></td>
+            <td class="square4"></td>
+            <td class="square5"></td>
+            <td class="square5"></td>
+            <td class="square5"></td>
+            <td class="square6"></td>
+            <td class="square6"></td>
+            <td class="square6"></td>
+          </tr>
+          <tr>
+            <td class="square1"></td>
+            <td class="square1"></td>
+            <td class="square1"></td>
+            <td class="square2"></td>
+            <td class="square2"></td>
+            <td class="square2"></td>
+            <td class="square3"></td>
+            <td class="square3"></td>
+            <td class="square3"></td>
+          </tr>
+          <tr>
+            <td class="square1"></td>
+            <td class="square1"></td>
+            <td class="square1"></td>
+            <td class="square2"></td>
+            <td class="square2"></td>
+            <td class="square2"></td>
+            <td class="square3"></td>
+            <td class="square3"></td>
+            <td class="square3"></td>
+          </tr>
+          <tr>
+            <td class="square1"></td>
+            <td class="square1"></td>
+            <td class="square1"></td>
+            <td class="square2"></td>
+            <td class="square2"></td>
+            <td class="square2"></td>
+            <td class="square3"></td>
+            <td class="square3"></td>
+            <td class="square3"></td>
+          </tr>
+        </table>
+      </div>
     </div>
-    <script type="text/javascript" src="js/materialize.min.js"></script>
   </body>
 </html>

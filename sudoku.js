@@ -32,10 +32,10 @@ $(document).ready(function() {
 		else if(e.key == 0) {
 			currAction++;
 
-			if(currAction == 1)
+			if(currAction == 1) {
 				clearActionSet();
-
-			if(currAction == 2) {
+			}
+			else if(currAction == 2) {
 				actionSet[2] = e.key;
 				writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
 			}
