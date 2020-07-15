@@ -7,6 +7,10 @@ $(document).ready(function() {
 	// Fill in a starting sudoku grid
 	fillSudokuGrid("14.7...6985.6.31....3..4..53.....71.2..1.5..4.91.....85..8..9....65.7.8372...1.56");
 
+	$(".difficulty-sel").click(function() {
+		$(".sudoku-grid").toggleClass("faded"); $(".button-cnt").toggleClass("hidden");
+	});
+
 	// This function outlines the core mechanic of Numpad Sudoku
 	// (will probably move it to a separate function soon)
 	$(document).keypress(function(e) {
