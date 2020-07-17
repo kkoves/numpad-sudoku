@@ -34,20 +34,20 @@ $(document).ready(function() {
 					splitGrid.push(startingGrid.slice(startIndex, endIndex).split(''))
 				}
 
-				console.log(splitGrid);
-
 				for(var row = 0; row < 9; row++) {
 					for(var col = 0; col < 9; col++) {
 						if(splitGrid[row][col] === '.') {
 							this.sudokuGrid[row][col] = null;
 						}
 						else {
-							this.sudokuGrid[row][col] = {isClue: true, val: parseInt(splitGrid[row][col])};
+							this.sudokuGrid[row][col] = {
+								val: parseInt(splitGrid[row][col]),
+								isClue: true,
+								isHighlighted: false
+							};
 						}
-						console.log(row, col, splitGrid[row][col], sudokuGrid[row][col]);
 					}
 				}
-				console.log(this.sudokuGrid);
 			}
 		}
 	});

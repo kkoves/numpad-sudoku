@@ -21,7 +21,7 @@
       <div class="container sudoku-grid" v-bind:class="{ faded: !isGridVisible }">
         <table>
           <tr v-for="row in sudokuGrid">
-            <td v-for="cell in row" v-bind:class="{ clue: cell && cell.isClue}">
+            <td v-for="cell in row" v-bind:class="{ clue: cell && cell.isClue, highlighted: cell && cell.isHighlighted }">
               {{ cell ? cell.val : '' }}
             </td>
           </tr>
