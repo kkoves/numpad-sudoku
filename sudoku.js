@@ -4,26 +4,53 @@ var currAction = -1;
 var cellLookupTable = [null, 6, 7, 8, 3, 4, 5, 0, 1, 2];
 
 $(document).ready(function() {
-	// Our data object
-	var sudokuGrid = { grid: [] }
+	var sudokuGrid = [Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9)];
+	var startingGrid = "14.7...6985.6.31....3..4..53.....71.2..1.5..4.91.....85..8..9....65.7.8372...1.56";
+	var difficulties = ['easy', 'medium', 'hard', 'expert'];
 
-	// The object is added to a Vue instance
 	var vm = new Vue({
-	  el: '#main-cnt',
-	  data: {
-		sudokuGrid,
-		isGridVisible: false
-	  },
-	  methods: {
-	     showGrid: function(difficulty) {
-			this.isGridVisible = true;
-			// TODO: add logic for making different grids based on difficulty
-	     }
-	   }
-	});
+		el: '#main-cnt',
+		data: {
+			difficulties,
+			sudokuGrid,
+			isGridVisible: false,
+			currentDifficulty: undefined
+		},
+		methods: {
+			showGrid: function(difficulty) {
+				this.isGridVisible = true;
+				this.fillSudokuGrid()
+				// TODO: add logic for making different grids based on difficulty
+			},
 
-	// Fill in a starting sudoku grid
-	fillSudokuGrid("14.7...6985.6.31....3..4..53.....71.2..1.5..4.91.....85..8..9....65.7.8372...1.56");
+			fillSudokuGrid: function() {
+				splitGrid = [];
+				startIndex = 0;
+				endIndex = 0;
+
+				for(var i = 0; i < 9; i++) {
+					startIndex = i * 9;
+					endIndex = (i + 1) * 9;
+					splitGrid.push(startingGrid.slice(startIndex, endIndex).split(''))
+				}
+
+				console.log(splitGrid);
+
+				for(var row = 0; row < 9; row++) {
+					for(var col = 0; col < 9; col++) {
+						if(splitGrid[row][col] === '.') {
+							this.sudokuGrid[row][col] = null;
+						}
+						else {
+							this.sudokuGrid[row][col] = {isClue: true, val: parseInt(splitGrid[row][col])};
+						}
+						console.log(row, col, splitGrid[row][col], sudokuGrid[row][col]);
+					}
+				}
+				console.log(this.sudokuGrid);
+			}
+		}
+	});
 
 	// This function outlines the core mechanic of Numpad Sudoku
 	// (will probably move it to a separate function soon)

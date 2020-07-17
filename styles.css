@@ -16,12 +16,12 @@
 }
 
 /* Vertical border between boxes */
-td:nth-child(3), td:nth-child(6) {
+.sudoku-grid td:nth-child(3), .sudoku-grid td:nth-child(6) {
   border-right: 2px solid;
 }
 
 /* Horizontal border between boxes */
-tr:nth-child(3), tr:nth-child(6) {
+.sudoku-grid tr:nth-child(3), .sudoku-grid tr:nth-child(6) {
   border-bottom: 2px solid;
 }
 
