@@ -7,18 +7,19 @@
     <link href="styles.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" defer></script>
     <script type="text/javascript" src="js/materialize.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="sudoku.js" defer></script>
   </head>
   <body>
     <div id="main-cnt">
       <h1>Numpad Sudoku</h1>
-      <div class="button-cnt">
-        <a class="waves-effect waves-light btn difficulty-sel">Easy</a>
-        <a class="waves-effect waves-light btn difficulty-sel">Medium</a>
-        <a class="waves-effect waves-light btn difficulty-sel">Hard</a>
-        <a class="waves-effect waves-light btn difficulty-sel">Expert</a>
+      <div class="button-cnt" v-bind:class="{ hidden: isGridVisible }">
+        <button v-on:click="showGrid('easy')" class="waves-effect waves-light btn difficulty-sel">Easy</a>
+        <button v-on:click="showGrid('medium')" class="waves-effect waves-light btn difficulty-sel">Medium</a>
+        <button v-on:click="showGrid('hard')" class="waves-effect waves-light btn difficulty-sel">Hard</a>
+        <button v-on:click="showGrid('expert')" class="waves-effect waves-light btn difficulty-sel">Expert</a>
       </div>
-      <div class="container sudoku-grid faded">
+      <div class="container sudoku-grid" v-bind:class="{ faded: !isGridVisible }">
         <table>
           <tr>
             <td class="square7"></td>

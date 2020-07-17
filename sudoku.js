@@ -4,12 +4,26 @@ var currAction = -1;
 var cellLookupTable = [null, 6, 7, 8, 3, 4, 5, 0, 1, 2];
 
 $(document).ready(function() {
+	// Our data object
+	var sudokuGrid = { grid: [] }
+
+	// The object is added to a Vue instance
+	var vm = new Vue({
+	  el: '#main-cnt',
+	  data: {
+		sudokuGrid,
+		isGridVisible: false
+	  },
+	  methods: {
+	     showGrid: function(difficulty) {
+			this.isGridVisible = true;
+			// TODO: add logic for making different grids based on difficulty
+	     }
+	   }
+	});
+
 	// Fill in a starting sudoku grid
 	fillSudokuGrid("14.7...6985.6.31....3..4..53.....71.2..1.5..4.91.....85..8..9....65.7.8372...1.56");
-
-	$(".difficulty-sel").click(function() {
-		$(".sudoku-grid").toggleClass("faded"); $(".button-cnt").toggleClass("hidden");
-	});
 
 	// This function outlines the core mechanic of Numpad Sudoku
 	// (will probably move it to a separate function soon)
