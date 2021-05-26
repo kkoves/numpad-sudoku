@@ -36,15 +36,34 @@ $(document).ready(function() {
 
 				for(var row = 0; row < 9; row++) {
 					for(var col = 0; col < 9; col++) {
+						// TODO: make an actual class for sudoku cells so that the if and else here aren't almost exactly the same code
 						if(splitGrid[row][col] === '.') {
-							this.sudokuGrid[row][col] = null;
+							cell = {
+								isClue: false,
+								isHighlighted: false,
+							};
+							cell = {
+								val: undefined,
+								clueClass: (cell.isClue ? "clue" : ""),
+								highlightedClass: (cell.isHighlighted ? "highlighted" : ""),
+								boxNumClass: ("box" + ((Math.floor(row / 3) * 3) + Math.floor(col / 3)))
+							};
+
+							this.sudokuGrid[row][col] = cell;
 						}
 						else {
-							this.sudokuGrid[row][col] = {
-								val: parseInt(splitGrid[row][col]),
+							cell = {
 								isClue: true,
-								isHighlighted: false
+								isHighlighted: false,
 							};
+							cell = {
+								val: parseInt(splitGrid[row][col]),
+								clueClass: (cell.isClue ? "clue" : ""),
+								highlightedClass: (cell.isHighlighted ? "highlighted" : ""),
+								boxNumClass: ("box" + ((Math.floor(row / 3) * 3) + Math.floor(col / 3)))
+							};
+
+							this.sudokuGrid[row][col] = cell;
 						}
 					}
 				}
@@ -66,7 +85,6 @@ $(document).ready(function() {
 			}
 			else if(currAction == 1) {
 				actionSet[1] = e.key;
-				highlightCell(actionSet.slice(0, 2));
 			}
 			else if(currAction == 2) {
 				actionSet[2] = e.key;
@@ -85,7 +103,7 @@ $(document).ready(function() {
 				writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
 			}
 		}
-		// The period (.) key will be used to cancel an action set
+		// The period key will be used to cancel an action set
 		else if(e.key == ".") {
 			clearActionSet();
 		}
@@ -93,11 +111,11 @@ $(document).ready(function() {
 });
 
 function highlightBlock(blockNumber) {
-	$(".square" + blockNumber).addClass("highlighted");
+	$(".box" + blockNumber).addClass("highlighted");
 }
 
 function highlightCell(coordinates) {
-	var selector = ".square" + coordinates[0];
+	var selector = ".box" + coordinates[0];
 	var block = $(selector);
 	var index = cellLookupTable[coordinates[1]];
 
@@ -111,7 +129,7 @@ function clearHighlight() {
 }
 
 function writeValueToCell(coordinates, value) {
-	var selector = ".square" + coordinates[0];
+	var selector = ".box" + coordinates[0];
 	var block = $(selector);
 	var index = cellLookupTable[coordinates[1]];
 
@@ -143,9 +161,7 @@ function clearActionSet() {
  * between the rows or boxes, so the string should be 81 characters long.
  *
  * Note: format may be changed later, as I have not yet decided how to store
- *       the puzzles before they are loaded on the page (I do not want to
- *       randomly generate them every time, as this would require validation
- *       of whether the puzzles have unique solutions).
+ *       the puzzles before they are loaded on the page.
  *
  * @param  {string} gridString - string of clues and blanks in format described above
  */
@@ -158,4 +174,8 @@ function fillSudokuGrid(gridString) {
 		else
 			$(this).text(null).removeClass("clue");
 	});
+}
+
+function getBoxNumber(row, col) {
+
 }

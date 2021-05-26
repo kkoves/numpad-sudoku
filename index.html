@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
@@ -21,7 +22,7 @@
       <div class="container sudoku-grid" v-bind:class="{ faded: !isGridVisible }">
         <table>
           <tr v-for="row in sudokuGrid">
-            <td v-for="cell in row" v-bind:class="{ clue: cell && cell.isClue, highlighted: cell && cell.isHighlighted }">
+            <td v-for="cell in row" v-bind:class="cell ? [cell.clueClass, cell.highlightedClass, cell.boxNumClass] : ''">
               {{ cell ? cell.val : '' }}
             </td>
           </tr>
