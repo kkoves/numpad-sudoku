@@ -89,6 +89,28 @@ function clearActionSet() {
 	actionSet = new Array(3);
 	currAction = -1;
 }
+//Validate the current grid and highlight any cells creating errors
+function validateGrid() {
+	//validate rows
+	
+	//validate columns
+	
+	//validate squares
+	
+}
+//Return the current grid as a string similar to the one that initialized the grid
+function getGrid() {
+	var gridString = ""
+	$("td").each(function(){
+		var value = $(this).text()
+		if(value == ""){
+			gridString += ".";
+		}else{
+			gridString += value;
+		}
+	});
+	return gridString;
+}
 
 /**
  * Fills the sudoku grid from a string that lists the cells to be filled in
