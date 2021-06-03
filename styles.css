@@ -25,6 +25,11 @@ table tr td {
 	background-color: #72a8ff;
 }
 
+.error {
+	background-color: #ff0000;
+}
+
+
 .clue {
 	font-weight: bold;
 }
