@@ -21,7 +21,7 @@ $(document).ready(function() {
       sudokuGrid,
       isGridVisible: false,
       currentDifficulty: undefined,
-      highlightedCells: undefined
+      highlightedCells: []
     },
 
     methods: {
@@ -51,6 +51,7 @@ $(document).ready(function() {
                 isHighlighted: false,
               };
               cell = {
+                ...cell,
                 val: undefined,
                 clueClass: (cell.isClue ? "clue" : ""),
                 highlightedClass: (cell.isHighlighted ? "highlighted" : ""),
@@ -66,6 +67,7 @@ $(document).ready(function() {
                 isHighlighted: false,
               };
               cell = {
+                ...cell,
                 val: parseInt(gridString.charAt(strIndex)),
                 clueClass: (cell.isClue ? "clue" : ""),
                 highlightedClass: (cell.isHighlighted ? "highlighted" : ""),
@@ -77,6 +79,30 @@ $(document).ready(function() {
             }
           }
         }
+      },
+
+      /**
+       * Given coordinates for a cell, writes a new value to that cell (if it is not a clue cell)
+       */
+      writeValueToCell: function(coordinates, value) {
+        boxCoords = this.getBoxCoordinates(coordinates[0]);
+        cellCoords = this.getCellCoordinates(boxCoords[0], boxCoords[1], coordinates[1]);
+        cellRow = cellCoords[0];
+        cellCol = cellCoords[1];
+
+        var cell = this.sudokuGrid[cellRow][cellCol];
+
+        // null value will clear the cell when 0 key has been pressed
+        if(value == 0) {
+          value = undefined;
+        }
+
+        // only change the cell's value if it is not a pre-filled cell (clue)
+        if(!cell.isClue) {
+          this.$set(cell, "val", value);
+        }
+
+        clearActionSet();
       },
 
       /**
@@ -114,8 +140,15 @@ $(document).ready(function() {
        * number (in "numpad format" from keyboard entry, not zero-indexed)
        */
       highlightBox: function(boxNum) {
-        console.log("TODO: write highlightBox function");
-        return;
+        var boxCoords = this.getBoxCoordinates(boxNum);
+        var startRow = boxCoords[0];
+        var startCol = boxCoords[1];
+
+        for(var row = startRow; row < (startRow + 3); row++) {
+          for(var col = startCol; col < (startCol + 3); col++) {
+            this.setCellHighlightedVars(row, col);
+          }
+        }
       },
 
       /**
@@ -127,14 +160,27 @@ $(document).ready(function() {
 
         var row = cellCoords[0];
         var col = cellCoords[1];
+        this.setCellHighlightedVars(row, col);
+      },
+
+      /**
+       * Sets the proper variables and CSS classes in Vue object to highlight a cell in the sudoku grid
+       */
+      setCellHighlightedVars: function(row, col) {
         var cell = this.sudokuGrid[row][col];
 
         this.$set(this.sudokuGrid[row][col], "isHighlighted", true);
+
         var highlightedClass = (cell.isHighlighted ? "highlighted" : "");
         this.$set(this.sudokuGrid[row][col], "highlightedClass", highlightedClass);
-        this.$set(this, "highlightedCells", [[row, col]]);
+
+        var highlightedCells = this.highlightedCells.concat([[row, col]]);
+        this.$set(this, "highlightedCells", highlightedCells);
       },
 
+      /**
+       * Clears all highlighted cells on the sudoku grid
+       */
       clearHighlights: function() {
         if(!this.highlightedCells || this.highlightedCells.length == 0) {
           return;
@@ -172,7 +218,7 @@ $(document).ready(function() {
       }
       else if(currAction == 2) {
         actionSet[2] = e.key;
-        writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
+        app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
       }
     }
     // 0 will be used to clear the value of a cell on the grid, or to cancel an action set
@@ -184,7 +230,7 @@ $(document).ready(function() {
       }
       else if(currAction == 2) {
         actionSet[2] = e.key;
-        writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
+        app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
       }
     }
     // The period key will be used to cancel an action set
@@ -194,76 +240,9 @@ $(document).ready(function() {
   });
 });
 
-/*
-function highlightBlock(blockNumber) {
-  $(".box" + blockNumber).addClass("highlighted");
-}
-*/
-
-/*
-function highlightCell(coordinates) {
-  var selector = ".box" + coordinates[0];
-  var block = $(selector);
-  var index = cellLookupTable[coordinates[1]];
-
-  var cell = block[index];
-
-  $(cell).addClass("highlighted");
-}
-*/
-
-/*
-function clearHighlight() {
-  $(".highlighted").removeClass("highlighted");
-}
-*/
-
-function writeValueToCell(coordinates, value) {
-  var selector = ".box" + coordinates[0];
-  var block = $(selector);
-  var index = cellLookupTable[coordinates[1]];
-
-  var cell = block[index];
-
-  // Null value will clear the cell when 0 key has been pressed
-  if(value == 0)
-    value = null;
-
-  // Only change the cell's value if it is not a pre-filled cell (clue)
-  if(!$(cell).hasClass("clue"))
-    $(cell).text(value);
-
-  clearActionSet();
-}
-
 function clearActionSet() {
   app.clearHighlights();
 
   actionSet = new Array(3);
   currAction = -1;
 }
-
-/**
- * Fills the sudoku grid from a string that lists the cells to be filled in
- * (clues) and the ones to be left empty (I will call them "blanks").
- *     Example string (one row only): "1..4.67.9"
- * The entire grid is represented in one string, with no separating character
- * between the rows or boxes, so the string should be 81 characters long.
- *
- * Note: format may be changed later, as I have not yet decided how to store
- *       the puzzles before they are loaded on the page.
- *
- * @param  {string} gridString - string of clues and blanks in format described above
- */
-/*
-function fillSudokuGrid(gridString) {
-  $("td").each(function(index) {
-    currValue = gridString.charAt(index);
-
-    if(currValue != '.')
-      $(this).text(currValue).addClass("clue");
-    else
-      $(this).text(null).removeClass("clue");
-  });
-}
-*/
