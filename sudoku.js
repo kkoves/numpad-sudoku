@@ -21,7 +21,9 @@ $(document).ready(function() {
       sudokuGrid,
       isGridVisible: false,
       currentDifficulty: undefined,
-      highlightedCells: []
+      highlightedCells: [],
+      lastBoxSelection: 0,
+      holdBoxSelection: false
     },
 
     methods: {
@@ -208,9 +210,10 @@ $(document).ready(function() {
       currAction++;
       app.clearHighlights();
 
-      if(currAction == 0) {
+      if(currAction == 0) { // TODO: make box highlight work again when in "hold box selection" mode
         actionSet[0] = e.key;
-        app.highlightBox(parseInt(e.key));
+        app.lastBoxSelection = parseInt(e.key);
+        app.highlightBox(app.lastBoxSelection);
       }
       else if(currAction == 1) {
         actionSet[1] = e.key;
@@ -234,15 +237,36 @@ $(document).ready(function() {
       }
     }
     // The period key will be used to cancel an action set
-    else if(e.key == ".") {
+    else if(e.key == '.') {
       clearActionSet();
+    }
+    // Asterisk will toggle "hold box selection" mode on/off, when on this will go back to
+    // the last-selected box after a cell is written to, so that another cell in the same
+    // box can be modified quicker
+    else if(e.key == '*') {
+      if(app.lastBoxSelection != 0) {
+        app.holdBoxSelection = !app.holdBoxSelection;
+        if(!app.holdBoxSelection) {
+          clearActionSet(); // TODO: consider how this might break things if we're halfway through action set when it's reset
+        }
+        else if(app.holdBoxSelection && currAction == -1) {
+          currAction = 0;
+          actionSet[0] = app.lastBoxSelection;
+        }
+      }
     }
   });
 });
 
 function clearActionSet() {
   app.clearHighlights();
-
   actionSet = new Array(3);
-  currAction = -1;
+
+  if(app.holdBoxSelection) {
+    actionSet[0] = app.lastBoxSelection;
+    currAction = 0;
+  }
+  else {
+    currAction = -1;
+  }
 }
