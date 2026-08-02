@@ -1,5 +1,5 @@
   // TODO: might make actionSet an object so it can be more readable,
-  //       e.g. actionSet['boxSelection'] or actionSet.boxSelection
+  //       e.g. actionSet["boxSelection"] or actionSet.boxSelection
   var actionSet = [0, 0, 0];
   var currAction = -1;
 
@@ -11,11 +11,11 @@
 $(document).ready(function() {
   var sudokuGrid = [Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9)];
   var startingGrid = "14.7...6985.6.31....3..4..53.....71.2..1.5..4.91.....85..8..9....65.7.8372...1.56";
-  var difficulties = ['easy', 'medium', 'hard', 'expert'];
+  var difficulties = ["easy", "medium", "hard", "expert"];
 
   // TODO: change this to "[let||var] app =" once all functions are inside (or referenced in) Vue object
   app = new Vue({
-    el: '#main-cnt',
+    el: "#main-cnt",
     data: {
       difficulties,
       sudokuGrid,
@@ -23,13 +23,16 @@ $(document).ready(function() {
       currentDifficulty: undefined,
       highlightedCells: [],
       lastBoxSelection: 0,
-      holdBoxSelection: false
+      holdBoxSelection: false,
+      lastCellSelection: [],
+      lastKeyEvent: ''
     },
 
     methods: {
       /**
        * Shows the grid after a difficulty is selected, calls fillSudokuGrid()
        * to fill the grid with a puzzle of the selected difficulty
+       * @param {string} difficulty - "easy", "medium", "hard", or "expert" (not yet implemented)
        */
       showGrid: function(difficulty) {
         this.isGridVisible = true;
@@ -40,6 +43,7 @@ $(document).ready(function() {
       /**
        * Fills in the sudoku grid on the page, given a string representation of a sudoku grid
        * with numbers where the clues are and periods ('.') representing empty cells
+       * @param {string} gridString
        */
       fillSudokuGrid: function(gridString) {
         for(var row = 0; row < 9; row++) {
@@ -84,13 +88,23 @@ $(document).ready(function() {
       },
 
       /**
-       * Given coordinates for a cell, writes a new value to that cell (if it is not a clue cell)
+       * Given coordinates for a cell (in "numpad format"), writes given new value to that cell (if it is not a clue cell)
+       * @param {number[]} coordinates
+       * @param {number} value
        */
       writeValueToCell: function(coordinates, value) {
-        boxCoords = this.getBoxCoordinates(coordinates[0]);
-        cellCoords = this.getCellCoordinates(boxCoords[0], boxCoords[1], coordinates[1]);
-        cellRow = cellCoords[0];
-        cellCol = cellCoords[1];
+        const ROW = 0;
+        const COL = 1;
+        if(!this.lastKeyEvent.startsWith("Arrow")) {
+          boxCoords = this.getBoxCoordinates(coordinates[0]);
+          cellCoords = this.getCellCoordinates(boxCoords[0], boxCoords[1], coordinates[1]);
+          cellRow = cellCoords[ROW];
+          cellCol = cellCoords[COL];
+        }
+        else {
+          cellRow = this.lastCellSelection[ROW];
+          cellCol = this.lastCellSelection[COL];
+        }
 
         var cell = this.sudokuGrid[cellRow][cellCol];
 
@@ -108,8 +122,9 @@ $(document).ready(function() {
       },
 
       /**
-       * Given the box selection number (in "numpad counting", as entered on keyboard),
+       * Given the box selection number (in "numpad format", as entered on keyboard),
        * returns the row and column numbers for the top-left corner of the selected box
+       * @param {number} boxNum
        */
       getBoxCoordinates: function(boxNum) {
         var boxCoordinates = { 7: [0, 0], 8: [0, 3], 9: [0, 6],
@@ -120,6 +135,9 @@ $(document).ready(function() {
 
       /**
        * Given the coordinates for the top-left corner of the selected box, returns the row and column numbers for the cell
+       * @param {number} boxCornerRow
+       * @param {number} boxCornerCol
+       * @param {number} cellNum
        */
       getCellCoordinates: function(boxCornerRow, boxCornerCol, cellNum) {
         // "shift" is how many rows/columns to "move" within the selected box to get to the cell we want
@@ -138,8 +156,21 @@ $(document).ready(function() {
       },
 
       /**
+       * Given the currently-selected box and cell numbers (in "numpad format", as entered on keyboard),
+       * converts them to (x, y) coordinates and saves them to `this.lastCellSelection` for later use.
+       * @param {number} boxNum
+       * @param {number} cellNum
+       */
+      setLastCellSelectionFromBoxAndCell: function(boxNum, cellNum) {
+        boxCoords = this.getBoxCoordinates(boxNum);
+        cellRowCol = this.getCellCoordinates(boxCoords[0], boxCoords[1], cellNum);
+        this.lastCellSelection = cellRowCol;
+      },
+
+      /**
        * Highlights a box (3x3 group of cells) on the grid, given its box
        * number (in "numpad format" from keyboard entry, not zero-indexed)
+       * @param {number} boxNum
        */
       highlightBox: function(boxNum) {
         var boxCoords = this.getBoxCoordinates(boxNum);
@@ -155,6 +186,8 @@ $(document).ready(function() {
 
       /**
        * Highlights a cell on the grid, given the box and cell numbers in "numpad format"
+       * @param {number} boxNum
+       * @param {number} cellNum
        */
       highlightCell: function(boxNum, cellNum) {
         var boxCoords = this.getBoxCoordinates(boxNum);
@@ -167,6 +200,8 @@ $(document).ready(function() {
 
       /**
        * Sets the proper variables and CSS classes in Vue object to highlight a cell in the sudoku grid
+       * @param {number} row
+       * @param {number} col
        */
       setCellHighlightedVars: function(row, col) {
         var cell = this.sudokuGrid[row][col];
@@ -178,6 +213,37 @@ $(document).ready(function() {
 
         var highlightedCells = this.highlightedCells.concat([[row, col]]);
         this.$set(this, "highlightedCells", highlightedCells);
+      },
+
+      /**
+       * Moves highlighted cell in the given direction
+       * @param {string} direction - "up", "down", "left", or "right"
+       */
+      moveHighlightedCell: function(direction) { // TODO: this should also set lastBoxSelection so that keeps working
+        cellCoords = this.lastCellSelection;
+        const ROW = 0;
+        const COL = 1;
+        switch(direction) {
+          case "up":
+            cellCoords[ROW] -= 1;
+            break;
+          case "down":
+            cellCoords[ROW] += 1;
+            break;
+          case "left":
+            cellCoords[COL] -= 1;
+            break;
+          case "right":
+            cellCoords[COL] += 1;
+            break;
+        }
+        // Only attempt to change highlighted cell if new coordinates are valid
+        rowNumValid = (cellCoords[ROW] >= 0 && cellCoords[ROW] <= 8)
+        colNumValid = (cellCoords[COL] >= 0 && cellCoords[COL] <= 8)
+        if(colNumValid && rowNumValid) {
+          this.setCellHighlightedVars(cellCoords[ROW], cellCoords[COL]);
+          this.lastCellSelection = [cellCoords[ROW], cellCoords[COL]];
+        }
       },
 
       /**
@@ -198,6 +264,7 @@ $(document).ready(function() {
           var highlightedClass = (cell.isHighlighted ? "highlighted" : "");
           this.$set(cell, "highlightedClass", highlightedClass);
         }
+        this.highlightedCells = [];
       }
     }
   });
@@ -210,19 +277,24 @@ $(document).ready(function() {
       currAction++;
       app.clearHighlights();
 
-      if(currAction == 0) { // TODO: make box highlight work again when in "hold box selection" mode
-        actionSet[0] = e.key;
+      if(currAction == 0) {
+        actionSet[0] = parseInt(e.key);
         app.lastBoxSelection = parseInt(e.key);
         app.highlightBox(app.lastBoxSelection);
       }
       else if(currAction == 1) {
-        actionSet[1] = e.key;
+        actionSet[1] = parseInt(e.key);
         app.highlightCell(actionSet[0], actionSet[1]);
       }
       else if(currAction == 2) {
-        actionSet[2] = e.key;
+        actionSet[2] = parseInt(e.key);
+        // If arrow key was used to move highlighted cell, last cell selection was already set in app.moveHighlightedCell()
+        if(!app.lastKeyEvent.startsWith("Arrow")) {
+          app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
+        }
         app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
       }
+      app.lastKeyEvent = e.key;
     }
     // 0 will be used to clear the value of a cell on the grid, or to cancel an action set
     else if(e.key == 0) {
@@ -232,30 +304,62 @@ $(document).ready(function() {
         clearActionSet();
       }
       else if(currAction == 2) {
-        actionSet[2] = e.key;
+        actionSet[2] = parseInt(e.key);
+        // If arrow key was used to move highlighted cell, last cell selection was already set in app.moveHighlightedCell()
+        if(!app.lastKeyEvent.startsWith("Arrow")) {
+          app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
+        }
         app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
       }
+      app.lastKeyEvent = e.key;
     }
     // The period key will be used to cancel an action set
     else if(e.key == '.') {
+      app.lastKeyEvent = e.key;
       clearActionSet();
     }
     // Asterisk will toggle "hold box selection" mode on/off, when on this will go back to
     // the last-selected box after a cell is written to, so that another cell in the same
     // box can be modified quicker
     else if(e.key == '*') {
+      app.lastKeyEvent = e.key;
       if(app.lastBoxSelection != 0) {
         app.holdBoxSelection = !app.holdBoxSelection;
-        if(!app.holdBoxSelection) {
-          clearActionSet(); // TODO: consider how this might break things if we're halfway through action set when it's reset
+        if(!app.holdBoxSelection && currAction == 0) {
+          clearActionSet();
         }
         else if(app.holdBoxSelection && currAction == -1) {
-          currAction = 0;
-          actionSet[0] = app.lastBoxSelection;
+          clearActionSet();
         }
       }
     }
   });
+
+  // Arrow keys don't trigger keypress events, so we have to use keydown or keyup
+  $(document).on("keyup", function(e) {
+    if(e.key == "ArrowUp" || e.key == "ArrowDown" || e.key == "ArrowLeft" || e.key == "ArrowRight") {
+      app.lastKeyEvent = e.key;
+      if(app.holdBoxSelection) {
+        app.holdBoxSelection = !app.holdBoxSelection;
+      }
+      app.clearHighlights();
+      currAction = 1;
+      // Arrow keys will get the last-edited cell and select the next cell in that direction from it for editing;
+      // hand doesn't have to leave numpad if NumLock is turned off, then arrow key is pressed
+      if(e.key == "ArrowUp") {
+        app.moveHighlightedCell("up");
+      }
+      else if(e.key == "ArrowDown") {
+        app.moveHighlightedCell("down");
+      }
+      else if(e.key == "ArrowLeft") {
+        app.moveHighlightedCell("left");
+      }
+      else if(e.key == "ArrowRight") {
+        app.moveHighlightedCell("right");
+      }
+    }
+  })
 });
 
 function clearActionSet() {
@@ -264,6 +368,7 @@ function clearActionSet() {
 
   if(app.holdBoxSelection) {
     actionSet[0] = app.lastBoxSelection;
+    app.highlightBox(app.lastBoxSelection);
     currAction = 0;
   }
   else {
