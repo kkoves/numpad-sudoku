@@ -1,10 +1,5 @@
-  // TODO: might make actionSet an object so it can be more readable,
-  //       e.g. actionSet["boxSelection"] or actionSet.boxSelection
-  var actionSet = [0, 0, 0];
-  var currAction = -1;
-
-  // TODO: remove this once all functions are inside (or referenced in) Vue object
-  var app = null;
+// TODO: remove this once all functions are inside (or referenced in) Vue object
+var app = null;
 
 $(document).ready(function() {
   var sudokuGrid = [Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9), Array(9)];
@@ -19,6 +14,10 @@ $(document).ready(function() {
       sudokuGrid,
       isGridVisible: false,
       currentDifficulty: undefined,
+      // TODO: might make actionSet an object so it can be more readable,
+      //       e.g. actionSet["boxSelection"] or actionSet.boxSelection
+      actionSet: [0, 0, 0],
+      currAction: -1,
       highlightedCells: [],
       lastBoxSelection: 0,
       holdBoxSelection: false,
@@ -87,15 +86,15 @@ $(document).ready(function() {
 
       clearActionSet: function() {
         this.clearHighlights();
-        actionSet = new Array(3);
+        this.actionSet = [0, 0, 0];
 
         if(this.holdBoxSelection) {
-          actionSet[0] = this.lastBoxSelection;
+          this.actionSet[0] = this.lastBoxSelection;
           this.highlightBox(this.lastBoxSelection);
-          currAction = 0;
+          this.currAction = 0;
         }
         else {
-          currAction = -1;
+          this.currAction = -1;
         }
       },
 
@@ -288,39 +287,39 @@ $(document).ready(function() {
     if(app.isGridVisible) {
       // 1-9 are used to select a block or cell, or to fill a cell
       if(parseInt(e.key) >= 1 && parseInt(e.key) <= 9) {
-        currAction++;
+        app.currAction++;
         app.clearHighlights();
 
-        if(currAction == 0) {
-          actionSet[0] = parseInt(e.key);
+        if(app.currAction == 0) {
+          app.actionSet[0] = parseInt(e.key);
           app.lastBoxSelection = parseInt(e.key);
           app.highlightBox(app.lastBoxSelection);
         }
-        else if(currAction == 1) {
-          actionSet[1] = parseInt(e.key);
-          app.highlightCell(actionSet[0], actionSet[1]);
-          app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
+        else if(app.currAction == 1) {
+          app.actionSet[1] = parseInt(e.key);
+          app.highlightCell(app.actionSet[0], app.actionSet[1]);
+          app.setLastCellSelectionFromBoxAndCell(app.actionSet[0], app.actionSet[1]);
         }
-        else if(currAction == 2) {
-          actionSet[2] = parseInt(e.key);
+        else if(app.currAction == 2) {
+          app.actionSet[2] = parseInt(e.key);
           // If arrow key was used to move highlighted cell, last cell selection was already set in app.moveHighlightedCell()
           if(!app.lastKeyEvent.startsWith("Arrow")) {
-            app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
+            app.setLastCellSelectionFromBoxAndCell(app.actionSet[0], app.actionSet[1]);
           }
-          app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
+          app.writeValueToCell(app.actionSet.slice(0, 2), app.actionSet[2]);
         }
         app.lastKeyEvent = e.key;
       }
       // 0 will be used to clear the value of a cell on the grid, or to cancel an action set
       else if(parseInt(e.key) == 0) {
-        currAction++;
-        if(currAction == 2) {
-          actionSet[2] = parseInt(e.key);
+        app.currAction++;
+        if(app.currAction == 2) {
+          app.actionSet[2] = parseInt(e.key);
           // If arrow key was used to move highlighted cell, last cell selection was already set in app.moveHighlightedCell()
           if(!app.lastKeyEvent.startsWith("Arrow")) {
-            app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
+            app.setLastCellSelectionFromBoxAndCell(app.actionSet[0], app.actionSet[1]);
           }
-          app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
+          app.writeValueToCell(app.actionSet.slice(0, 2), app.actionSet[2]);
         }
         app.lastKeyEvent = e.key;
         app.clearActionSet();
@@ -337,10 +336,10 @@ $(document).ready(function() {
         app.lastKeyEvent = e.key;
         if(app.lastBoxSelection != 0) {
           app.holdBoxSelection = !app.holdBoxSelection;
-          if(!app.holdBoxSelection && currAction == 0) {
+          if(!app.holdBoxSelection && app.currAction == 0) {
             app.clearActionSet();
           }
-          else if(app.holdBoxSelection && currAction == -1) {
+          else if(app.holdBoxSelection && app.currAction == -1) {
             app.clearActionSet();
           }
         }
@@ -358,7 +357,7 @@ $(document).ready(function() {
           app.holdBoxSelection = !app.holdBoxSelection;
         }
         app.clearHighlights();
-        currAction = 1;
+        app.currAction = 1;
         // Arrow keys will get the last-edited cell and select the next cell in that direction from it for editing;
         // hand doesn't have to leave numpad if NumLock is turned off, then arrow key is pressed
         if(e.key == "ArrowUp") {
