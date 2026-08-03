@@ -3,8 +3,6 @@
   var actionSet = [0, 0, 0];
   var currAction = -1;
 
-  var cellLookupTable = [null, 6, 7, 8, 3, 4, 5, 0, 1, 2];
-
   // TODO: remove this once all functions are inside (or referenced in) Vue object
   var app = null;
 
@@ -24,7 +22,7 @@ $(document).ready(function() {
       highlightedCells: [],
       lastBoxSelection: 0,
       holdBoxSelection: false,
-      lastCellSelection: [],
+      lastCellSelection: [1, 1],
       lastKeyEvent: ''
     },
 
@@ -87,6 +85,20 @@ $(document).ready(function() {
         }
       },
 
+      clearActionSet: function() {
+        this.clearHighlights();
+        actionSet = new Array(3);
+
+        if(this.holdBoxSelection) {
+          actionSet[0] = this.lastBoxSelection;
+          this.highlightBox(this.lastBoxSelection);
+          currAction = 0;
+        }
+        else {
+          currAction = -1;
+        }
+      },
+
       /**
        * Given coordinates for a cell (in "numpad format"), writes given new value to that cell (if it is not a clue cell)
        * @param {number[]} coordinates
@@ -118,7 +130,7 @@ $(document).ready(function() {
           this.$set(cell, "val", value);
         }
 
-        clearActionSet();
+        this.clearActionSet();
       },
 
       /**
@@ -272,64 +284,65 @@ $(document).ready(function() {
   // This function outlines the core mechanic of Numpad Sudoku
   // (will probably move it to a separate function soon)
   $(document).keypress(function(e) {
-    // 1-9 are used to select a block or cell, or to fill a cell
-    if(e.key >= 1 && e.key <= 9) {
-      currAction++;
-      app.clearHighlights();
+    // Only register key presses after we're past the difficulty selection screen
+    if(app.isGridVisible) {
+      // 1-9 are used to select a block or cell, or to fill a cell
+      if(parseInt(e.key) >= 1 && parseInt(e.key) <= 9) {
+        currAction++;
+        app.clearHighlights();
 
-      if(currAction == 0) {
-        actionSet[0] = parseInt(e.key);
-        app.lastBoxSelection = parseInt(e.key);
-        app.highlightBox(app.lastBoxSelection);
-      }
-      else if(currAction == 1) {
-        actionSet[1] = parseInt(e.key);
-        app.highlightCell(actionSet[0], actionSet[1]);
-      }
-      else if(currAction == 2) {
-        actionSet[2] = parseInt(e.key);
-        // If arrow key was used to move highlighted cell, last cell selection was already set in app.moveHighlightedCell()
-        if(!app.lastKeyEvent.startsWith("Arrow")) {
+        if(currAction == 0) {
+          actionSet[0] = parseInt(e.key);
+          app.lastBoxSelection = parseInt(e.key);
+          app.highlightBox(app.lastBoxSelection);
+        }
+        else if(currAction == 1) {
+          actionSet[1] = parseInt(e.key);
+          app.highlightCell(actionSet[0], actionSet[1]);
           app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
         }
-        app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
-      }
-      app.lastKeyEvent = e.key;
-    }
-    // 0 will be used to clear the value of a cell on the grid, or to cancel an action set
-    else if(e.key == 0) {
-      currAction++;
-
-      if(currAction == 1) {
-        clearActionSet();
-      }
-      else if(currAction == 2) {
-        actionSet[2] = parseInt(e.key);
-        // If arrow key was used to move highlighted cell, last cell selection was already set in app.moveHighlightedCell()
-        if(!app.lastKeyEvent.startsWith("Arrow")) {
-          app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
+        else if(currAction == 2) {
+          actionSet[2] = parseInt(e.key);
+          // If arrow key was used to move highlighted cell, last cell selection was already set in app.moveHighlightedCell()
+          if(!app.lastKeyEvent.startsWith("Arrow")) {
+            app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
+          }
+          app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
         }
-        app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
+        app.lastKeyEvent = e.key;
       }
-      app.lastKeyEvent = e.key;
-    }
-    // The period key will be used to cancel an action set
-    else if(e.key == '.') {
-      app.lastKeyEvent = e.key;
-      clearActionSet();
-    }
-    // Asterisk will toggle "hold box selection" mode on/off, when on this will go back to
-    // the last-selected box after a cell is written to, so that another cell in the same
-    // box can be modified quicker
-    else if(e.key == '*') {
-      app.lastKeyEvent = e.key;
-      if(app.lastBoxSelection != 0) {
-        app.holdBoxSelection = !app.holdBoxSelection;
-        if(!app.holdBoxSelection && currAction == 0) {
-          clearActionSet();
+      // 0 will be used to clear the value of a cell on the grid, or to cancel an action set
+      else if(parseInt(e.key) == 0) {
+        currAction++;
+        if(currAction == 2) {
+          actionSet[2] = parseInt(e.key);
+          // If arrow key was used to move highlighted cell, last cell selection was already set in app.moveHighlightedCell()
+          if(!app.lastKeyEvent.startsWith("Arrow")) {
+            app.setLastCellSelectionFromBoxAndCell(actionSet[0], actionSet[1]);
+          }
+          app.writeValueToCell(actionSet.slice(0, 2), actionSet[2]);
         }
-        else if(app.holdBoxSelection && currAction == -1) {
-          clearActionSet();
+        app.lastKeyEvent = e.key;
+        app.clearActionSet();
+      }
+      // The period key will be used to cancel an action set
+      else if(e.key == '.') {
+        app.lastKeyEvent = e.key;
+        app.clearActionSet();
+      }
+      // Asterisk will toggle "hold box selection" mode on/off, when on this will go back to
+      // the last-selected box after a cell is written to, so that another cell in the same
+      // box can be modified quicker
+      else if(e.key == '*') {
+        app.lastKeyEvent = e.key;
+        if(app.lastBoxSelection != 0) {
+          app.holdBoxSelection = !app.holdBoxSelection;
+          if(!app.holdBoxSelection && currAction == 0) {
+            app.clearActionSet();
+          }
+          else if(app.holdBoxSelection && currAction == -1) {
+            app.clearActionSet();
+          }
         }
       }
     }
@@ -337,41 +350,30 @@ $(document).ready(function() {
 
   // Arrow keys don't trigger keypress events, so we have to use keydown or keyup
   $(document).on("keyup", function(e) {
-    if(e.key == "ArrowUp" || e.key == "ArrowDown" || e.key == "ArrowLeft" || e.key == "ArrowRight") {
-      app.lastKeyEvent = e.key;
-      if(app.holdBoxSelection) {
-        app.holdBoxSelection = !app.holdBoxSelection;
-      }
-      app.clearHighlights();
-      currAction = 1;
-      // Arrow keys will get the last-edited cell and select the next cell in that direction from it for editing;
-      // hand doesn't have to leave numpad if NumLock is turned off, then arrow key is pressed
-      if(e.key == "ArrowUp") {
-        app.moveHighlightedCell("up");
-      }
-      else if(e.key == "ArrowDown") {
-        app.moveHighlightedCell("down");
-      }
-      else if(e.key == "ArrowLeft") {
-        app.moveHighlightedCell("left");
-      }
-      else if(e.key == "ArrowRight") {
-        app.moveHighlightedCell("right");
+    // Only register key presses after we're past the difficulty selection screen
+    if(app.isGridVisible) {
+      if(e.key == "ArrowUp" || e.key == "ArrowDown" || e.key == "ArrowLeft" || e.key == "ArrowRight") {
+        app.lastKeyEvent = e.key;
+        if(app.holdBoxSelection) {
+          app.holdBoxSelection = !app.holdBoxSelection;
+        }
+        app.clearHighlights();
+        currAction = 1;
+        // Arrow keys will get the last-edited cell and select the next cell in that direction from it for editing;
+        // hand doesn't have to leave numpad if NumLock is turned off, then arrow key is pressed
+        if(e.key == "ArrowUp") {
+          app.moveHighlightedCell("up");
+        }
+        else if(e.key == "ArrowDown") {
+          app.moveHighlightedCell("down");
+        }
+        else if(e.key == "ArrowLeft") {
+          app.moveHighlightedCell("left");
+        }
+        else if(e.key == "ArrowRight") {
+          app.moveHighlightedCell("right");
+        }
       }
     }
-  })
+  });
 });
-
-function clearActionSet() {
-  app.clearHighlights();
-  actionSet = new Array(3);
-
-  if(app.holdBoxSelection) {
-    actionSet[0] = app.lastBoxSelection;
-    app.highlightBox(app.lastBoxSelection);
-    currAction = 0;
-  }
-  else {
-    currAction = -1;
-  }
-}
